@@ -58,16 +58,18 @@ def parse_repo(args):
         #     "YYYY-MM-DD"
         # ):
 
-        print(
-            f"Package: '{p.source_package_name}'\n"
-            f"\tVersion: '{p.source_package_version}'\n"
-            f"\tPublished: '{p.date_published}'\n"
-            f"\tDays ago: {delta.in_days()}"
-        )
-        # f"\tURLs: '{p.binaryFileUrls()}\n"
-
-        for u in p.binaryFileUrls():
-            print(f"\t{u}\n")
+        if args.lineout:
+            print( f"{p.date_published} {p.source_package_name} {p.source_package_version} {p.binaryFileUrls()}")
+        else:
+            print(
+                f"Package: '{p.source_package_name}'\n"
+                f"\tVersion: '{p.source_package_version}'\n"
+                f"\tPublished: '{p.date_published}'\n"
+                f"\tDays ago: {delta.in_days()}"
+            )
+            # f"\tURLs: '{p.binaryFileUrls()}\n"
+            for u in p.binaryFileUrls():
+                print(f"\t{u}\n")
 
 
 def parse_publish_date(args, foo):
@@ -89,6 +91,7 @@ def parse_args():
     parser.add_argument("--date", help="Search packages published on <date>")
     parser.add_argument("--before", help="Search packages published before <date>")
     parser.add_argument("--after", help="Search packages published after <date>")
+    parser.add_argument('--lineout', action=argparse.BooleanOptionalAction, help="Produce line-oriented output instead of the default stanza-oriented output")
 
     return parser.parse_args()
 
