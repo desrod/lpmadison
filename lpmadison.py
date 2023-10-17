@@ -66,7 +66,7 @@ def parse_args():
     parser.add_argument("--after", help="Search packages published after <date>")
     parser.add_argument(
         "--lineout",
-        action=argparse.BooleanOptionalAction,
+        action='store_true',
         help="Produce line-oriented output instead of the default stanza-oriented output",
     )
     return parser.parse_args()
