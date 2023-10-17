@@ -6,7 +6,7 @@ from launchpadlib.launchpad import Launchpad
 
 INSTANCE = "production"
 VALID_API_VERSIONS = ("beta", "1.0", "devel")
-AP_VERSION = "devel"
+API_VERSION = "devel"
 
 
 def parse_repo(args):
