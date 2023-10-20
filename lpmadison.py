@@ -27,32 +27,24 @@ def get_published_binaries(series_name, arch=None, package=None):
 
 
 def display_packages(packages, lineout=False):
+    now = pendulum.now()
     for p in packages:
-        publish_date, delta = parse_publish_date(p.date_published)
+        publish_date = pendulum.parse(str(p.date_published))
+        delta = now - publish_date
 
         if lineout:
-            print(
-                f"{p.date_published} {p.source_package_name} {p.source_package_version} {p.binaryFileUrls()}"
-            )
+            print(f"{p.date_published} {p.source_package_name} {p.source_package_version} {p.binaryFileUrls()}")
         else:
             print_package_details(p, delta)
 
-
 def parse_repo(args):
-    series = args.series
-    arch = args.arch if hasattr(args, "arch") else None
-    package = args.package if hasattr(args, "package") else None
-    lineout = args.lineout if hasattr(args, "lineout") else False
+    series = getattr(args, "series", None)
+    arch = getattr(args, "arch", None)
+    package = getattr(args, "package", None)
+    lineout = getattr(args, "lineout", False)
 
     packages = get_published_binaries(series, arch, package)
     display_packages(packages, lineout)
-
-
-def parse_publish_date(date_str):
-    now = pendulum.now()
-    publish_date = pendulum.parse(str(date_str))
-    delta = now - publish_date
-    return publish_date, delta
 
 
 def print_package_details(package, delta):
