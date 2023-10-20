@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+
 import pendulum
 from launchpadlib.launchpad import Launchpad
 
@@ -9,32 +10,42 @@ VALID_API_VERSIONS = ("beta", "1.0", "devel")
 API_VERSION = "devel"
 
 
-def parse_repo(args):
+def get_published_binaries(series_name, arch=None, package=None):
     launchpad = Launchpad.login_anonymously("ubuntu", INSTANCE, version=API_VERSION)
     ubuntu = launchpad.distributions["ubuntu"]
     archive = ubuntu.main_archive
-    series = ubuntu.getSeries(name_or_version=args.series)
+    series = ubuntu.getSeries(name_or_version=series_name)
 
     package_args = {"exact_match": True}
 
-    if args.arch:
-        package_args["distro_arch_series"] = series.getDistroArchSeries(
-            archtag=args.arch
-        )
-    if args.package:
-        package_args["binary_name"] = args.package
+    if arch:
+        package_args["distro_arch_series"] = series.getDistroArchSeries(archtag=arch)
+    if package:
+        package_args["binary_name"] = package
 
-    pkg = archive.getPublishedBinaries(**package_args)
+    return archive.getPublishedBinaries(**package_args)
 
-    for p in pkg:
+
+def display_packages(packages, lineout=False):
+    for p in packages:
         publish_date, delta = parse_publish_date(p.date_published)
 
-        if args.lineout:
+        if lineout:
             print(
                 f"{p.date_published} {p.source_package_name} {p.source_package_version} {p.binaryFileUrls()}"
             )
         else:
             print_package_details(p, delta)
+
+
+def parse_repo(args):
+    series = args.series
+    arch = args.arch if hasattr(args, "arch") else None
+    package = args.package if hasattr(args, "package") else None
+    lineout = args.lineout if hasattr(args, "lineout") else False
+
+    packages = get_published_binaries(series, arch, package)
+    display_packages(packages, lineout)
 
 
 def parse_publish_date(date_str):
@@ -66,7 +77,7 @@ def parse_args():
     parser.add_argument("--after", help="Search packages published after <date>")
     parser.add_argument(
         "--lineout",
-        action='store_true',
+        action="store_true",
         help="Produce line-oriented output instead of the default stanza-oriented output",
     )
     return parser.parse_args()
